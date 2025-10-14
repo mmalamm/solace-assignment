@@ -1,91 +1,56 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useState } from "react";
+import Header from "@/components/Header";
+import FilterSidebar from "@/components/FilterSidebar";
+import ResultsGrid from "@/components/ResultsGrid";
+import Footer from "@/components/Footer";
 
-export default function Home() {
-  const [advocates, setAdvocates] = useState([]);
-  const [filteredAdvocates, setFilteredAdvocates] = useState([]);
-
-  useEffect(() => {
-    console.log("fetching advocates...");
-    fetch("/api/advocates").then((response) => {
-      response.json().then((jsonResponse) => {
-        setAdvocates(jsonResponse.data);
-        setFilteredAdvocates(jsonResponse.data);
-      });
-    });
-  }, []);
-
-  const onChange = (e) => {
-    const searchTerm = e.target.value;
-
-    document.getElementById("search-term").innerHTML = searchTerm;
-
-    console.log("filtering advocates...");
-    const filteredAdvocates = advocates.filter((advocate) => {
-      return (
-        advocate.firstName.includes(searchTerm) ||
-        advocate.lastName.includes(searchTerm) ||
-        advocate.city.includes(searchTerm) ||
-        advocate.degree.includes(searchTerm) ||
-        advocate.specialties.includes(searchTerm) ||
-        advocate.yearsOfExperience.includes(searchTerm)
-      );
-    });
-
-    setFilteredAdvocates(filteredAdvocates);
-  };
-
-  const onClick = () => {
-    console.log(advocates);
-    setFilteredAdvocates(advocates);
-  };
+function SearchContent() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <main style={{ margin: "24px" }}>
-      <h1>Solace Advocates</h1>
-      <br />
-      <br />
-      <div>
-        <p>Search</p>
-        <p>
-          Searching for: <span id="search-term"></span>
-        </p>
-        <input style={{ border: "1px solid black" }} onChange={onChange} />
-        <button onClick={onClick}>Reset Search</button>
+    <>
+      <Header onMenuClick={() => setSidebarOpen(true)} />
+
+      <div className="container flex-1">
+        <div className="flex gap-6 py-6">
+          {/* Desktop sidebar - always visible on md+ screens */}
+          <aside className="hidden md:block">
+            <FilterSidebar />
+          </aside>
+
+          {/* Mobile sidebar - Sheet overlay */}
+          <FilterSidebar
+            open={sidebarOpen}
+            onOpenChange={setSidebarOpen}
+            mobile
+          />
+
+          {/* Results */}
+          <main className="flex-1 min-w-0">
+            <ResultsGrid />
+          </main>
+        </div>
       </div>
-      <br />
-      <br />
-      <table>
-        <thead>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>City</th>
-          <th>Degree</th>
-          <th>Specialties</th>
-          <th>Years of Experience</th>
-          <th>Phone Number</th>
-        </thead>
-        <tbody>
-          {filteredAdvocates.map((advocate) => {
-            return (
-              <tr>
-                <td>{advocate.firstName}</td>
-                <td>{advocate.lastName}</td>
-                <td>{advocate.city}</td>
-                <td>{advocate.degree}</td>
-                <td>
-                  {advocate.specialties.map((s) => (
-                    <div>{s}</div>
-                  ))}
-                </td>
-                <td>{advocate.yearsOfExperience}</td>
-                <td>{advocate.phoneNumber}</td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </main>
+
+      <Footer />
+    </>
+  );
+}
+
+export default function Home() {
+  return (
+    <div className="flex min-h-screen flex-col">
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <p className="text-muted-foreground">Loading...</p>
+          </div>
+        }
+      >
+        <SearchContent />
+      </Suspense>
+    </div>
   );
 }
