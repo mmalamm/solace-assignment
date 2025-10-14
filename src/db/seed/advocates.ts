@@ -1,34 +1,7 @@
-import db from "..";
-import { advocates } from "../schema";
+import { faker } from "@faker-js/faker";
+import { SPECIALTIES, DEGREES } from "@/lib/constants";
 
-const specialties = [
-  "Bipolar",
-  "LGBTQ",
-  "Medication/Prescribing",
-  "Suicide History/Attempts",
-  "General Mental Health (anxiety, depression, stress, grief, life transitions)",
-  "Men's issues",
-  "Relationship Issues (family, friends, couple, etc)",
-  "Trauma & PTSD",
-  "Personality disorders",
-  "Personal growth",
-  "Substance use/abuse",
-  "Pediatrics",
-  "Women's issues (post-partum, infertility, family planning)",
-  "Chronic pain",
-  "Weight loss & nutrition",
-  "Eating disorders",
-  "Diabetic Diet and nutrition",
-  "Coaching (leadership, career, academic and wellness)",
-  "Life coaching",
-  "Obsessive-compulsive disorders",
-  "Neuropsychological evaluations & testing (ADHD testing)",
-  "Attention and Hyperactivity (ADHD)",
-  "Sleep issues",
-  "Schizophrenia and psychotic disorders",
-  "Learning disorders",
-  "Domestic abuse",
-];
+const specialties = [...SPECIALTIES];
 
 const randomSpecialty = () => {
   const random1 = Math.floor(Math.random() * 24);
@@ -174,5 +147,35 @@ const advocateData = [
     phoneNumber: 5559872345,
   },
 ];
+
+function createRandomPhoneNumber() {
+  // Generate 7 random digits (0-9)
+  let randomDigits = "";
+  for (let i = 0; i < 7; i++) {
+    randomDigits += Math.floor(Math.random() * 10);
+  }
+
+  // Combine with 555 prefix and convert to number
+  const phoneNumber = parseInt("555" + randomDigits);
+
+  return phoneNumber;
+}
+
+export function createRandomRecords(howMany = 5) {
+  const records = [];
+  for (let i = 0; i < howMany; i++) {
+    records.push({
+      firstName: faker.person.firstName(),
+      lastName: faker.person.lastName(),
+      city: faker.location.city(),
+      degree: DEGREES[Math.floor(Math.random() * DEGREES.length)],
+      specialties: specialties.slice(...randomSpecialty()),
+      yearsOfExperience: (Math.random() * 20) | 0,
+      phoneNumber: createRandomPhoneNumber(),
+    });
+  }
+
+  return records;
+}
 
 export { advocateData };
