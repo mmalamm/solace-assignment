@@ -2,6 +2,9 @@ import postgres from "postgres";
 import { advocateData, createRandomRecords } from "../../../db/seed/advocates";
 
 export async function POST() {
+  if (process.env.NODE_ENV === "production") {
+    return Response.json({ error: "cannot seed db in production" });
+  }
   const sql = postgres(process.env.DATABASE_URL!);
   const dataToInsert = [...advocateData, ...createRandomRecords(1000)];
 
